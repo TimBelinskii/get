@@ -10,6 +10,14 @@ def predictVoltage(value):
     return f'Предпологаемое напряжение на выходе ЦАП - {round(3.3 / 256 * value, 2)}'
 
 
+def isNumber(n):
+    try:
+        float(n)
+        return True
+    except ValueError:
+        return False
+
+
 T = 10
 freq = 1000
 pin = 22
@@ -17,14 +25,14 @@ pin = 22
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(pin, GPIO.OUT)
 p = GPIO.PWM(pin, freq)
-
 try:
     dc = 0
+    p.start(dc)
     while True:
         dc = input()
-        if dc.isnumeric():
-            if 0 < float(dc) < 100
-                p.start(dc)
+        if isNumber(dc):
+            if 0 < float(dc) < 100:
+                p.ChangeDutyCycle(float(dc))
             else:
                 print('Необходимо ввести число от 0 до 100')
         else:
