@@ -10,6 +10,7 @@ def predictVoltage(value):
 
 
 dac = [26, 19, 13, 6, 5, 11, 9, 10]
+T = 10
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(dac, GPIO.OUT)
 
@@ -18,7 +19,13 @@ try:
         for i in range(256):
             bits = decimal2binary(i)
             GPIO.output(dac, bits)
-            time.sleep(0.2)
+            print(predictVoltage(i))
+            time.sleep(T/512)
+        for i in range(255, -1, -1):
+            bits = decimal2binary(i)
+            GPIO.output(dac, bits)
+            print(predictVoltage(i))
+            time.sleep(T/512)
 finally:
     GPIO.output(dac, 0)
     GPIO.cleanup()
