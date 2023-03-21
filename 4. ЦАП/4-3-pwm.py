@@ -7,7 +7,7 @@ def decimal2binary(value):
 
 
 def predictVoltage(value):
-    return f'Предпологаемое напряжение на выходе ЦАП - {round(3.3 / 256 * value, 2)}'
+    return f'Предпологаемое напряжение на выходе ЦАП - {round(3.3 / 100 * value, 2)}'
 
 
 def isNumber(n):
@@ -20,22 +20,25 @@ def isNumber(n):
 
 T = 10
 freq = 1000
-pin = 22
-dac = [26, 19, 13, 6, 5, 11, 9, 10]
+pin = 2
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(dac, GPIO.OUT)
-GPIO.setup(pin, GPIO.OUT)
+GPIO.setup([pin, 8], GPIO.OUT)
 p = GPIO.PWM(pin, freq)
+p_led = GPIO.PWM(8, freq)
 
 try:
+    print('Введите значение коэффициента заполнения в пределах от 0 до 100')
     dc = 0
     p.start(dc)
+    p_led.start(dc)
     while True:
         dc = input()
         if isNumber(dc):
-            if 0 < float(dc) < 100:
+            if 0 <= float(dc) <= 100:
                 p.ChangeDutyCycle(float(dc))
+                p_led.ChangeDutyCycle(float(dc))
+                print(predictVoltage(float(dc)))
             else:
                 print('Необходимо ввести число от 0 до 100')
         else:
@@ -43,4 +46,5 @@ try:
 
 finally:
     p.stop()
+    p_led.stop()
     GPIO.cleanup()
