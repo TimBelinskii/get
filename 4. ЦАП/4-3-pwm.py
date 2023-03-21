@@ -21,10 +21,13 @@ def isNumber(n):
 T = 10
 freq = 1000
 pin = 22
+dac = [26, 19, 13, 6, 5, 11, 9, 10]
 
 GPIO.setmode(GPIO.BCM)
+GPIO.setup(dac, GPIO.OUT)
 GPIO.setup(pin, GPIO.OUT)
 p = GPIO.PWM(pin, freq)
+
 try:
     dc = 0
     p.start(dc)
@@ -39,4 +42,5 @@ try:
             print('Необходимо ввести число, а не текст')
 
 finally:
+    p.stop()
     GPIO.cleanup()
