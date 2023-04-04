@@ -31,5 +31,5 @@ try:
         print(f"Цифровое значение: {value}, значение напряжения: {voltage}")
 
 finally:
-    GPIO.output(dac + [comp], 0)
+    GPIO.output(dac + [troyka], 0)
     GPIO.cleanup()
