@@ -13,7 +13,7 @@ def signal2leds(value):
     GPIO.output(leds, signal)
 
 
-def adc():
+def adc2():
     signal = [0, 0, 0, 0, 0, 0, 0, 0]
     for i in range(8):
         signal[i] = 1
@@ -26,9 +26,18 @@ def adc():
         v += signal[i] * 2 ** (7 - i)
     return v, signal
 
+def adc1():
+    for v in range(256):
+        GPIO.output(dac, decimal2binary(v))
+        time.sleep(0.0007)
+        comp_v = GPIO.input(comp)
+        if comp_v == 0:
+            return v, decimal2binary(v)
+
 
 dac = [26, 19, 13, 6, 5, 11, 9, 10]
 leds = [21, 20, 16, 12, 7, 8, 25, 24]
+leds = leds[::-1]
 comp = 4
 troyka = 17
 
@@ -39,7 +48,7 @@ GPIO.setup(comp, GPIO.IN)
 
 try:
     while True:
-        value, signal = adc()
+        value, signal = adc1()
         signal2leds(value)
         voltage = round(value / 256 * 3.3, 2)
         print(f"Цифровое значение: {value} -> {signal}, значение напряжения: {voltage}")
