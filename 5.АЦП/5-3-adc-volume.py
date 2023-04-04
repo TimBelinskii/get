@@ -5,12 +5,12 @@ import time
 def decimal2binary(value):
     return [int(bit) for bit in bin(value)[2:].zfill(8)]
 
+
 def signal2leds(value):
     signal = [0] * 8
     n = int(8 * value / 256)
-    signal[:n+1] = [1]*n
+    signal[:n] = [1] * n
     GPIO.output(leds, signal)
-
 
 
 def adc():
