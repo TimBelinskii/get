@@ -5,6 +5,13 @@ import time
 def decimal2binary(value):
     return [int(bit) for bit in bin(value)[2:].zfill(8)]
 
+def signal2leds(value):
+    signal = [0] * 8
+    n = int(8 * value / 256)
+    signal[:n+1] = [1]*n
+    GPIO.output(leds, signal)
+
+
 
 def adc():
     signal = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -33,7 +40,7 @@ GPIO.setup(comp, GPIO.IN)
 try:
     while True:
         value, signal = adc()
-        GPIO.output(leds, signal)
+        signal2leds(value)
         voltage = round(value / 256 * 3.3, 2)
         print(f"Цифровое значение: {value} -> {signal}, значение напряжения: {voltage}")
 
