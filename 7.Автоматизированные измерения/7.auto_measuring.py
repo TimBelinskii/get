@@ -2,6 +2,10 @@ import RPi.GPIO as GPIO
 import matplotlib.pyplot as plt
 import time
 
+def makeGraph(values):
+    n = range(len(values))
+    plt.scatter(n, values)
+    plt.savefig('graph.png')
 
 def decimal2binary(value):
     return [int(bit) for bit in bin(value)[2:].zfill(8)]
@@ -23,7 +27,6 @@ def adc():
 
 dac = [26, 19, 13, 6, 5, 11, 9, 10]
 leds = [21, 20, 16, 12, 7, 8, 25, 24]
-leds = leds[::-1]
 comp = 4
 troyka = 17
 
@@ -36,25 +39,48 @@ v = []
 
 try:
     t0 = time.time()
-    GPIO.output(troyka, GPIO.HIGH)
+    voltage = 0
+    GPIO.output(troyka, GPIO.LOW)
+    # Зарядка конденсатора
     while voltage <= 0.97 * 3.3:
         value, signal = adc()
         GPIO.output(leds, signal)
-        voltage = round(value / 256 * 3.3, 2)
+        voltage = value / 256 * 3.3
         v.append(voltage)
-        # print(f"Цифровое значение: {signal} -> {value}, значение напряжения: {voltage}")
-    GPIO.output(troyka, GPIO.LOW)
-    while voltage >= 0.02 * 3.3:
+        print(f"Цифровое значение: {signal} -> {value}, значение напряжения: {round(voltage, 2)}")
+
+    GPIO.output(troyka, GPIO.HIGH)
+    # Разрядка конденсатора
+    while voltage >= 0.8:
         value, signal = adc()
         GPIO.output(leds, signal)
         voltage = round(value / 256 * 3.3, 2)
         v.append(voltage)
-        # print(f"Цифровое значение: {signal} -> {value}, значение напряжения: {voltage}")
+        print(f"Цифровое значение: {signal} -> {value}, значение напряжения: {voltage}")
+
+    # Анализ полученных данных
     t1 = time.time()
-    dt = t1 - t0
-    with open('data.txt', 'w') as f:
+    dt = round(t1 - t0, 2)
+    f = round(len(v) / dt, 2)
+    T = round(dt / len(v), 2)
+    st = 0
+    for i in range(1, len(v)):
+        st += abs(v[i] - v[i - 1])
+
+    st = round(st/(len(v) - 1), 2)
+
+    # Вывод результатов
+    with open('data.txt', 'w') as F:
         for value in v:
-            f.write(value)
+            F.write(str(value) + '\n')
+    with open('settings.txt', 'w') as F:
+        F.write(f'Средняя частота дискретизации: {f} Гц\n')
+        F.write(f'Шаг квантования: {st} В')
+    makeGraph(v)
+    print(f'Общая продолжительность эксперимента: {dt} c')
+    print(f'Период одного измерения: {T} c')
+    print(f'Средняя частота дискретизации: {f} Гц')
+    print(f'Шаг квантования: {st} В')
 finally:
     GPIO.output(dac + [troyka] + leds, GPIO.LOW)
     GPIO.cleanup()
